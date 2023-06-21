@@ -1,16 +1,16 @@
 {
-  "name": "lw.comm-server",
+  "name": "ew.comm-server",
   "version": "4.1.0",
   "license": "AGPL-3.0",
-  "description": "Unified communications server for LaserWeb/CNCweb",
-  "author": "github.com/Rottschaferanders",
+  "description": "Unified communications server for EDMWeb",
+  "author": "Anders Rottschafer",
   "contributors": [
     "Claudio Prezzi <claudio.prezzi@gmail.com>"
   ],
   "type": "commonjs",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Rottschaferanders/lw.comm-server.git"
+    "url": "git+https://github.com/Rack-Robotics/ew.comm-server.git"
   },
   "dependencies": {
     "chalk": "4.x",
@@ -25,14 +25,14 @@
     "ws": "8.x"
   },
   "bugs": {
-    "url": "https://github.com/Rottschaferanders/lw.comm-server/issues"
+    "url": "https://github.com/Rack-Robotics/ew.comm-server/issues"
   },
   "homepage": "https://laserweb.yurl.ch",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 0",
-    "update_frontend": "git rm app/ -r -f && cp -r ../Laserweb4/dist/. app/ && git add app/"
+    "update_frontend": "git rm app/ -r -f && cp -r ../EDMWeb/dist/. app/ && git add app/"
   },
   "keywords": [
     "laserweb",

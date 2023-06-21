@@ -111,7 +111,7 @@ writeLog(chalk.green('**********************************************************
 writeLog(chalk.green(' '), 0);
 writeLog(chalk.red('* Updates: '), 0);
 writeLog(chalk.green('  Remember to check the commit log on'), 0);
-writeLog(chalk.yellow('  https://github.com/LaserWeb/lw.comm-server/commits/master'), 0);
+writeLog(chalk.yellow('  https://github.com/Rack-Robotics/ew.comm-server/commits/master'), 0);
 writeLog(chalk.green('  regularly, to know about updates and fixes, and then when ready'), 0);
 writeLog(chalk.green('  update accordingly by running ') + chalk.cyan('git pull'), 0);
 writeLog(chalk.green(' '), 0);

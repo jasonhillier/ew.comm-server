@@ -6,13 +6,13 @@ dist: trusty
 before_install:
   - sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils
   - cd ../
-  - git clone https://github.com/Rottschaferanders/LaserWeb4.git
+  - git clone https://github.com/Rack-Robotics/EDMWeb.git
   - cd LaserWeb4
   - git checkout dev-es6
   - npm install
   - npm run installdev
   - npm run bundle-dev
-  - cd ../lw.comm-server
+  - cd ../ew.comm-server
   - npm install
   - ./node_modules/.bin/electron-rebuild
   - npm run dist
