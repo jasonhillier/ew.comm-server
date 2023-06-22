@@ -103,7 +103,7 @@ var add = ip.address();
 
 writeLog(chalk.green(' '), 0);
 writeLog(chalk.green('***************************************************************'), 0);
-writeLog(chalk.white('        ---- LaserWeb Comm Server ' + config.serverVersion + ' ----        '), 0);
+writeLog(chalk.white('        ---- EDMWeb Comm Server ' + config.serverVersion + ' ----        '), 0);
 writeLog(chalk.green('***************************************************************'), 0);
 writeLog(chalk.white('  Use ') + chalk.yellow(' http://' + add + ':' + config.webPort) + chalk.white(' to connect to this server.'), 0);
 writeLog(chalk.white('  You can use the  ') + chalk.yellow('IP ') + chalk.white('env variable to configure.'), 0);

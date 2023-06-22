@@ -35,7 +35,6 @@
     "update_frontend": "git rm app/ -r -f && cp -r ../EDMWeb/dist/. app/ && git add app/"
   },
   "keywords": [
-    "laserweb",
     "cncweb",
     "grbl",
     "smoothieware",
@@ -51,8 +50,8 @@
     "npm": ">=6.14.15"
   },
   "build": {
-    "appId": "xyz.laserweb",
-    "productName": "LaserWeb",
+    "appId": "xyz.edmweb",
+    "productName": "EDMWeb",
     "asar": true,
     "files": [
       "**/*"

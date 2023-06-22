@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get install --no-install-recommends -y icnsutils graphicsmagick xz-utils
   - cd ../
   - git clone https://github.com/Rack-Robotics/EDMWeb.git
-  - cd LaserWeb4
+  - cd EDMWeb
   - git checkout dev-es6
   - npm install
   - npm run installdev

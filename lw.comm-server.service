@@ -1,5 +1,5 @@
 [Unit]
-Description=LaserWeb4 server
+Description=EDMWeb server
 
 [Service]
 ExecStart=/usr/bin/node /home/pi/ew.comm-server/server.js
