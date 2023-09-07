@@ -55,7 +55,7 @@ exports.LWCommServer=function(config){
 var logFile;
 var connectionType, connections = [];
 var gcodeQueue = [];
-var port, parser, isConnected, connectedTo, portsList;
+var port, powercorePort, parser, isConnected, connectedTo, portsList;
 var telnetSocket, espSocket, connectedIp;
 var telnetBuffer, espBuffer;
 
@@ -95,6 +95,10 @@ var REPRAP_RX_BUFFER_SIZE = config.reprapBufferSize;        // max. lines of gco
 var reprapBufferSize = REPRAP_RX_BUFFER_SIZE;               // init space left
 var reprapWaitForPos = false;
 
+const POWERCORE_CURRENT_STR = "<Current avg>:";
+var powercoreCurrentTotal = 0;
+var wearCoeff = 0;
+var wToolOffset = 0;
 var xPos = 0.00, yPos = 0.00, zPos = 0.00, aPos = 0.00;
 var xOffset = 0.00, yOffset = 0.00, zOffset = 0.00, aOffset = 0.00;
 var has4thAxis = false;
@@ -365,6 +369,67 @@ io.sockets.on('connection', function (appSocket) {
 
     appSocket.on('getRunningJob', function (data) { // Deliver running Job to Web-Client
         appSocket.emit('runningJob', runningJob);
+    });
+
+    appSocket.on('connectToPowercore', function (data) { // If a user picks a port to connect to, open a Node SerialPort Instance to it
+        data = data.split(',');
+        writeLog(chalk.yellow('INFO: ') + chalk.blue('Connecting to Powercore - ' + data), 1);
+
+        if (powercorePort)
+        {
+            powercorePort.close();
+            powercorePort = null;
+            resetPowercoreStats();
+            return;
+        }
+
+        powercorePort = new SerialPort(data[1], {
+            baudRate: parseInt(data[2].replace('baud',''))
+        });
+
+        const parser = powercorePort.pipe(new Readline({ delimiter: '\n' }))
+        powercorePort.on('open', function () {
+            writeLog(chalk.yellow('INFO: ') + chalk.green('Powercore is connected.'), 1);
+            io.sockets.emit('powercoreConnectStatus', "connected");
+        });
+        powercorePort.on('close', function () { // op
+            writeLog(chalk.yellow('INFO: ') + chalk.yellow('Disconnected Powercore'), 1);
+            io.sockets.emit('powercoreConnectStatus', "closed");
+        });
+        parser.on('data', function (data) { // op
+            writeLog(data);
+            io.sockets.emit('powercoreData', data);
+            var idx = data.indexOf(POWERCORE_CURRENT_STR)
+            //only accumulate current sensor data from powercore if a job is running
+            if (idx >=0 && runningJob) {
+                var cval = parseInt(data.substring(idx + POWERCORE_CURRENT_STR.length));
+                powercoreCurrentTotal += cval;
+
+                var tool_offset = Math.round(-wearCoeff * powercoreCurrentTotal * 100) / 100;
+
+                if (tool_offset != wToolOffset) {
+                    wToolOffset = tool_offset;
+                    io.sockets.emit('powercoreWearOffset', tool_offset);
+
+                    writeLog(chalk.yellow('DEBUG: wear offset: ') + chalk.white(tool_offset), 1);
+
+                    //transmit (to grbl)
+                    machineSend(`¦${tool_offset}\n`)
+                }
+            }
+        });
+    });
+
+    appSocket.on('powercoreClosePort', function (data) { // If a user picks a port to connect to, open a Node SerialPort Instance to it
+        if (powercorePort != null) {
+            powercorePort.close();
+            powercorePort = null;
+        }
+    });
+
+    appSocket.on('powercoreWearCoeff', function(data) {
+        wearCoeff = parseFloat(data);
+        writeLog(chalk.cyan('INFO: wear coefficient changed to: ') + chalk.cyan(wearCoeff), 1);
     });
 
     appSocket.on('connectTo', function (data) { // If a user picks a port to connect to, open a Node SerialPort Instance to it
@@ -2314,6 +2379,7 @@ function runJob(data) {
     if (isConnected) {
         if (data) {
             runningJob = data;
+            resetPowercoreStats();
             //jobRequestIP = appSocket.request.connection.remoteAddress;
             data = data.split('\n');
             for (var i = 0; i < data.length; i++) {
@@ -3293,7 +3359,9 @@ function stopMachine() {
         jobRequestIP = null;
         blocked = false;
         paused = false;
+        resetPowercoreStats();
         io.sockets.emit('runStatus', 'stopped');
+        io.sockets.emit('powercoreWearOffset', 0);
 
         //NAB - Added to support action to run after job aborts
         doJobAction(config.jobOnAbort);
@@ -3421,6 +3489,12 @@ function resetMachine() {
         io.sockets.emit('connectStatus', 'Connect');
         writeLog(chalk.red('ERROR: ') + chalk.blue('Machine connection not open!'), 1);
     }
+}
+
+function resetPowercoreStats()
+{
+    powercoreCurrentTotal = 0;
+    wToolOffset = 0;
 }
 
 
